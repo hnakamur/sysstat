@@ -4,7 +4,7 @@ import "testing"
 
 func TestParseLoadAvg(t *testing.T) {
 	var a LoadAvg
-	line := "1.31 1.39 1.43 2/1081 24188\n"
+	line := []byte("1.31 1.39 1.43 2/1081 24188\n")
 	err := parseLoadAvg(line, &a)
 	if err != nil {
 		t.Fatal(err)

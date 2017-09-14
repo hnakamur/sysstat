@@ -2,8 +2,9 @@ package sysstat
 
 import (
 	"os"
-	"strconv"
 	"syscall"
+
+	"github.com/hnakamur/bytesconv"
 )
 
 // LoadAvg represents load averages for 1 minute, 5 minutes, and 15 minutes.
@@ -13,7 +14,10 @@ type LoadAvg struct {
 	Load15 float64
 }
 
+var loadAvgBuf [80]byte
+
 // ReadLoadAvg read the load average values.
+// Note ReadLoadAvg is not goroutine safe.
 func ReadLoadAvg(a *LoadAvg) error {
 	fd, err := syscall.Open("/proc/loadavg", os.O_RDONLY, 0)
 	if err != nil {
@@ -21,31 +25,30 @@ func ReadLoadAvg(a *LoadAvg) error {
 	}
 	defer syscall.Close(fd)
 
-	var buf [80]byte
-	n, err := syscall.Read(fd, buf[:])
+	n, err := syscall.Read(fd, loadAvgBuf[:])
 	if err != nil {
 		return err
 	}
-	return parseLoadAvg(string(buf[:n]), a)
+	return parseLoadAvg(loadAvgBuf[:n], a)
 }
 
-func parseLoadAvg(s string, a *LoadAvg) error {
+func parseLoadAvg(s []byte, a *LoadAvg) error {
 	start, end := nextField(s)
-	load1, err := strconv.ParseFloat(s[start:end], 64)
+	load1, err := bytesconv.ParseFloat(s[start:end], 64)
 	if err != nil {
 		return err
 	}
 
 	s = s[end+1:]
 	start, end = nextField(s)
-	load5, err := strconv.ParseFloat(s[start:end], 64)
+	load5, err := bytesconv.ParseFloat(s[start:end], 64)
 	if err != nil {
 		return err
 	}
 
 	s = s[end+1:]
 	start, end = nextField(s)
-	load15, err := strconv.ParseFloat(s[start:end], 64)
+	load15, err := bytesconv.ParseFloat(s[start:end], 64)
 	if err != nil {
 		return err
 	}

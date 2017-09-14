@@ -1,6 +1,6 @@
 package sysstat
 
-func nextField(s string) (start, end int) {
+func nextField(s []byte) (start, end int) {
 	i := 0
 	for isSpace(s[i]) {
 		i++
