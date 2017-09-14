@@ -2,7 +2,6 @@ package sysstat
 
 import (
 	"testing"
-	"time"
 )
 
 func BenchmarkReadUptime(b *testing.B) {
@@ -30,8 +29,8 @@ func TestUptimeReader_parse(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := 10654673980 * time.Millisecond
+	want := 10654673.98
 	if u.Uptime != want {
-		t.Errorf("uptime unmatch, got %d, want %d", u.Uptime, want)
+		t.Errorf("uptime unmatch, got %g, want %g", u.Uptime, want)
 	}
 }
