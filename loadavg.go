@@ -3,7 +3,6 @@ package sysstat
 import (
 	"os"
 	"strconv"
-	"strings"
 	"syscall"
 )
 
@@ -30,19 +29,23 @@ func ReadLoadAvg(a *LoadAvg) error {
 	return parseLoadAvg(string(buf[:n]), a)
 }
 
-func parseLoadAvg(b string, a *LoadAvg) error {
-	fields := strings.Fields(b)
-	load1, err := strconv.ParseFloat(fields[0], 64)
+func parseLoadAvg(s string, a *LoadAvg) error {
+	start, end := nextField(s)
+	load1, err := strconv.ParseFloat(s[start:end], 64)
 	if err != nil {
 		return err
 	}
 
-	load5, err := strconv.ParseFloat(fields[1], 64)
+	s = s[end+1:]
+	start, end = nextField(s)
+	load5, err := strconv.ParseFloat(s[start:end], 64)
 	if err != nil {
 		return err
 	}
 
-	load15, err := strconv.ParseFloat(fields[2], 64)
+	s = s[end+1:]
+	start, end = nextField(s)
+	load15, err := strconv.ParseFloat(s[start:end], 64)
 	if err != nil {
 		return err
 	}
