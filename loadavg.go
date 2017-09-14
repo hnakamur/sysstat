@@ -4,6 +4,7 @@ import (
 	"os"
 	"syscall"
 
+	"github.com/hnakamur/ascii"
 	"github.com/hnakamur/bytesconv"
 )
 
@@ -33,21 +34,21 @@ func ReadLoadAvg(a *LoadAvg) error {
 }
 
 func parseLoadAvg(s []byte, a *LoadAvg) error {
-	start, end := nextField(s)
+	start, end := ascii.NextField(s)
 	load1, err := bytesconv.ParseFloat(s[start:end], 64)
 	if err != nil {
 		return err
 	}
 
 	s = s[end+1:]
-	start, end = nextField(s)
+	start, end = ascii.NextField(s)
 	load5, err := bytesconv.ParseFloat(s[start:end], 64)
 	if err != nil {
 		return err
 	}
 
 	s = s[end+1:]
-	start, end = nextField(s)
+	start, end = ascii.NextField(s)
 	load15, err := bytesconv.ParseFloat(s[start:end], 64)
 	if err != nil {
 		return err
