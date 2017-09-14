@@ -4,6 +4,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"syscall"
 )
 
 // LoadAvg represents load averages for 1 minute, 5 minutes, and 15 minutes.
@@ -15,14 +16,14 @@ type LoadAvg struct {
 
 // ReadLoadAvg read the load average values.
 func ReadLoadAvg(a *LoadAvg) error {
-	file, err := os.Open("/proc/loadavg")
+	fd, err := syscall.Open("/proc/loadavg", os.O_RDONLY, 0)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer syscall.Close(fd)
 
 	var buf [80]byte
-	n, err := file.Read(buf[:])
+	n, err := syscall.Read(fd, buf[:])
 	if err != nil {
 		return err
 	}
