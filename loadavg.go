@@ -19,7 +19,7 @@ var loadAvgBuf [80]byte
 // ReadLoadAvg read the load average values.
 // Note ReadLoadAvg is not goroutine safe.
 func ReadLoadAvg(a *LoadAvg) error {
-	fd, err := syscall.Open("/proc/loadavg", os.O_RDONLY, 0)
+	fd, err := open([]byte("/proc/loadavg"), os.O_RDONLY, 0)
 	if err != nil {
 		return err
 	}
