@@ -3,9 +3,6 @@ package sysstat
 import (
 	"os"
 	"syscall"
-
-	"github.com/hnakamur/ascii"
-	"github.com/hnakamur/bytesconv"
 )
 
 // Uptime represents time elapsed from boot.
@@ -41,19 +38,9 @@ func (r *uptimeReader) readUptime(u *Uptime) error {
 
 func (r *uptimeReader) parse(buf []byte, u *Uptime) error {
 	var err error
-	u.Uptime, err = r.readFloat64(&buf)
+	u.Uptime, err = readFloat64Field(&buf)
 	if err != nil {
 		return err
 	}
 	return nil
-}
-
-func (r *uptimeReader) readFloat64(buf *[]byte) (float64, error) {
-	start, end := ascii.NextField(*buf)
-	field := (*buf)[start:end]
-	val, err := bytesconv.ParseFloat(field, 64)
-	if err != nil {
-		return 0, err
-	}
-	return val, nil
 }

@@ -3,9 +3,6 @@ package sysstat
 import (
 	"os"
 	"syscall"
-
-	"github.com/hnakamur/ascii"
-	"github.com/hnakamur/bytesconv"
 )
 
 // LoadAvg represents load averages for 1 minute, 5 minutes, and 15 minutes.
@@ -33,29 +30,19 @@ func ReadLoadAvg(a *LoadAvg) error {
 	return parseLoadAvg(loadAvgBuf[:n], a)
 }
 
-func parseLoadAvg(s []byte, a *LoadAvg) error {
-	start, end := ascii.NextField(s)
-	load1, err := bytesconv.ParseFloat(s[start:end], 64)
+func parseLoadAvg(buf []byte, a *LoadAvg) error {
+	var err error
+	a.Load1, err = readFloat64Field(&buf)
 	if err != nil {
 		return err
 	}
-
-	s = s[end+1:]
-	start, end = ascii.NextField(s)
-	load5, err := bytesconv.ParseFloat(s[start:end], 64)
+	a.Load5, err = readFloat64Field(&buf)
 	if err != nil {
 		return err
 	}
-
-	s = s[end+1:]
-	start, end = ascii.NextField(s)
-	load15, err := bytesconv.ParseFloat(s[start:end], 64)
+	a.Load15, err = readFloat64Field(&buf)
 	if err != nil {
 		return err
 	}
-
-	a.Load1 = load1
-	a.Load5 = load5
-	a.Load15 = load15
 	return nil
 }
