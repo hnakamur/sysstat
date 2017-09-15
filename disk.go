@@ -56,16 +56,17 @@ type DiskStatReader struct {
 
 var gIOStatReader DiskStatReader
 
-func NewDiskStatReader(devNames []string) *DiskStatReader {
+func NewDiskStatReader(devNames []string) (*DiskStatReader, error) {
 	stats := make([]lastTwoRawDiskStats, len(devNames))
 	for i := 0; i < len(stats); i++ {
 		stats[i].devName = devNames[i]
 	}
-	return &DiskStatReader{stats: stats}
-}
-
-func (r *DiskStatReader) InitialRead() error {
-	return r.readDiskStat(nil)
+	r := &DiskStatReader{stats: stats}
+	err := r.readDiskStat(nil)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
 func (r *DiskStatReader) Read(stats []DiskStat) error {
