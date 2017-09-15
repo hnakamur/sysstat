@@ -25,9 +25,9 @@ func TestIOStatReader_parse(t *testing.T) {
  252       2 dm-2 3535546 0 28307568 64269284 7492624 0 59940984 4164029824 0 2293272 4264445128
  252       3 dm-3 3535054 0 28292160 98918464 7492624 0 59940984 1936335464 0 12677308 2083039984
    7       8 loop8 1745 0 3670 36 0 0 0 0 0 4 36`)
-	stats := make([]lastTwoDiskStats, 2)
-	stats[0].devName = []byte("sda")
-	stats[1].devName = []byte("sdb")
+	stats := make([]lastTwoRawDiskStats, 2)
+	stats[0].devName = "sda"
+	stats[1].devName = "sdb"
 	err := gIOStatReader.parse(buf, stats)
 	if err != nil {
 		t.Fatal(err)
@@ -85,9 +85,9 @@ func BenchmarkIOStatReader_parse(b *testing.B) {
  252       2 dm-2 3535546 0 28307568 64269284 7492624 0 59940984 4164029824 0 2293272 4264445128
  252       3 dm-3 3535054 0 28292160 98918464 7492624 0 59940984 1936335464 0 12677308 2083039984
    7       8 loop8 1745 0 3670 36 0 0 0 0 0 4 36`)
-	stats := make([]lastTwoDiskStats, 2)
-	stats[0].devName = []byte("sda")
-	stats[1].devName = []byte("sdb")
+	stats := make([]lastTwoRawDiskStats, 2)
+	stats[0].devName = "sda"
+	stats[1].devName = "sdb"
 	for i := 0; i < b.N; i++ {
 		err := gIOStatReader.parse(buf, stats)
 		if err != nil {
