@@ -9,6 +9,7 @@ import (
 	"github.com/hnakamur/ascii"
 )
 
+// NetworkStat is a statistics of network per device.
 type NetworkStat struct {
 	DevName            string
 	RecvBytesPerSec    float64
@@ -78,6 +79,7 @@ func (r *NetworkStatReader) allocStats(devNames []string) {
 	r.stats = stats
 }
 
+// Read reads network statistics.
 func (r *NetworkStatReader) Read(stats []NetworkStat) error {
 	return r.readNetworkStat(stats)
 }
@@ -212,9 +214,5 @@ func (r *NetworkStatReader) parseLineAfterDevName(buf []byte, s *rawNetworkStat)
 		return err
 	}
 	s.TransColls, err = readUint64Field(&buf)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

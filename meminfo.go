@@ -78,10 +78,7 @@ func (r *MemInfoReader) parseMemInfo(buf []byte, m *MemInfo) error {
 		return err
 	}
 	m.SwapFree, err = r.readValue(&buf, []byte("SwapFree:"))
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (r *MemInfoReader) readValue(buf *[]byte, prefix []byte) (uint64, error) {

@@ -39,8 +39,5 @@ func (r *UptimeReader) Read(u *Uptime) error {
 func (r *UptimeReader) parse(buf []byte, u *Uptime) error {
 	var err error
 	u.Uptime, err = readFloat64Field(&buf)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }

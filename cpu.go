@@ -10,6 +10,7 @@ import (
 	"github.com/hnakamur/ascii"
 )
 
+// CPUStat is a statistics about CPU.
 type CPUStat struct {
 	UserPercent   float64
 	NicePercent   float64
@@ -41,6 +42,7 @@ type CPUStatReader struct {
 	numCPU   int
 }
 
+// NewCPUStatReader creates a CPUStatReader.
 func NewCPUStatReader() (*CPUStatReader, error) {
 	r := &CPUStatReader{numCPU: runtime.NumCPU()}
 	err := r.readCPUStat(nil)
@@ -139,10 +141,7 @@ func (r *CPUStatReader) parseLineAfterName(buf []byte, s *rawCPUStat) error {
 		return err
 	}
 	s.GuestNice, err = readUint64Field(&buf)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (r *CPUStatReader) fillCPUStat(s *CPUStat, intervalSeconds float64) {

@@ -11,6 +11,7 @@ import (
 
 const sectorBytes = 512
 
+// DiskStat is a statistics about disk.
 type DiskStat struct {
 	DevName            string
 	ReadCountPerSec    float64
@@ -191,9 +192,5 @@ func (r *DiskStatReader) parseLineAfterDevName(buf []byte, s *rawDiskStat) error
 		return err
 	}
 	s.WrTicks, err = readUint64Field(&buf)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

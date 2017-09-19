@@ -41,8 +41,5 @@ func parseLoadAvg(buf []byte, a *LoadAvg) error {
 		return err
 	}
 	a.Load15, err = readFloat64Field(&buf)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
