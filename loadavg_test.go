@@ -2,10 +2,11 @@ package sysstat
 
 import "testing"
 
-func TestParseLoadAvg(t *testing.T) {
+func TestLoadAvgReader_Parse(t *testing.T) {
 	var a LoadAvg
+	r := NewLoadAvgReader()
 	line := []byte("1.31 1.39 1.43 2/1081 24188\n")
-	err := parseLoadAvg(line, &a)
+	err := r.parse(line, &a)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -20,10 +21,11 @@ func TestParseLoadAvg(t *testing.T) {
 	}
 }
 
-func BenchmarkReadLoadAvg(b *testing.B) {
+func BenchmarkLoadAvgReader_Read(b *testing.B) {
 	var a LoadAvg
+	r := NewLoadAvgReader()
 	for i := 0; i < b.N; i++ {
-		err := ReadLoadAvg(&a)
+		err := r.Read(&a)
 		if err != nil {
 			b.Fatal(err)
 		}

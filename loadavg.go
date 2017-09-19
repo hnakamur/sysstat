@@ -12,25 +12,33 @@ type LoadAvg struct {
 	Load15 float64
 }
 
-var loadAvgBuf [80]byte
+// LoadAvgReader is a reader for load averages.
+// LoadAvgReader is not safe for concurrent accesses from multiple goroutines.
+type LoadAvgReader struct {
+	buf [80]byte
+}
 
-// ReadLoadAvg read the load average values.
-// Note ReadLoadAvg is not goroutine safe.
-func ReadLoadAvg(a *LoadAvg) error {
+// NewLoadAvgReader creats a LoadAvgReader.
+func NewLoadAvgReader() *LoadAvgReader {
+	return new(LoadAvgReader)
+}
+
+// Read reads the load average values.
+func (r *LoadAvgReader) Read(a *LoadAvg) error {
 	fd, err := open([]byte("/proc/loadavg"), os.O_RDONLY, 0)
 	if err != nil {
 		return err
 	}
 	defer syscall.Close(fd)
 
-	n, err := syscall.Read(fd, loadAvgBuf[:])
+	n, err := syscall.Read(fd, r.buf[:])
 	if err != nil {
 		return err
 	}
-	return parseLoadAvg(loadAvgBuf[:n], a)
+	return r.parse(r.buf[:n], a)
 }
 
-func parseLoadAvg(buf []byte, a *LoadAvg) error {
+func (r *LoadAvgReader) parse(buf []byte, a *LoadAvg) error {
 	var err error
 	a.Load1, err = readFloat64Field(&buf)
 	if err != nil {
