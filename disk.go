@@ -75,6 +75,7 @@ func (r *DiskStatReader) allocStats(devNames []string) {
 	r.stats = stats
 }
 
+// Read reads statistics about disk.
 func (r *DiskStatReader) Read(stats []DiskStat) error {
 	return r.readDiskStat(stats)
 }

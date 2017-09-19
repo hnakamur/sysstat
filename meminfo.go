@@ -10,7 +10,7 @@ import (
 )
 
 // MemInfo represents memory information in bytes.
-// Only interested fields are supported for performance.
+// Only interested fields are provided for performance reason.
 type MemInfo struct {
 	MemTotal     uint64
 	MemFree      uint64
@@ -33,6 +33,7 @@ func NewMemInfoReader() *MemInfoReader {
 	return new(MemInfoReader)
 }
 
+// Read reads a statistics about memory.
 func (r *MemInfoReader) Read(m *MemInfo) error {
 	fd, err := open([]byte("/proc/meminfo"), os.O_RDONLY, 0)
 	if err != nil {

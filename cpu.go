@@ -34,6 +34,7 @@ type rawCPUStat struct {
 }
 
 // CPUStatReader reads the CPU statistics.
+// CPUStatReader is not safe for concurrent accesses from multiple goroutines.
 type CPUStatReader struct {
 	buf      [8192]byte
 	curr     int
@@ -52,6 +53,7 @@ func NewCPUStatReader() (*CPUStatReader, error) {
 	return r, nil
 }
 
+// Read reads a CPU statistics.
 func (r *CPUStatReader) Read(s *CPUStat) error {
 	return r.readCPUStat(s)
 }
