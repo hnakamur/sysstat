@@ -46,6 +46,8 @@ type lastTwoRawDiskStats struct {
 	stats   [2]rawDiskStat
 }
 
+// DiskStatReader is used for reading disk statistics.
+// DiskStatReader is not safe for concurrent acceses from multiple goroutines.
 type DiskStatReader struct {
 	buf      [8192]byte
 	curr     int
@@ -53,19 +55,23 @@ type DiskStatReader struct {
 	prevTime time.Time
 }
 
-var gIOStatReader DiskStatReader
-
+// NewDiskStatReader creates a DiskStatReader and does an initial read.
 func NewDiskStatReader(devNames []string) (*DiskStatReader, error) {
-	stats := make([]lastTwoRawDiskStats, len(devNames))
-	for i := 0; i < len(stats); i++ {
-		stats[i].devName = devNames[i]
-	}
-	r := &DiskStatReader{stats: stats}
+	r := new(DiskStatReader)
+	r.allocStats(devNames)
 	err := r.readDiskStat(nil)
 	if err != nil {
 		return nil, err
 	}
 	return r, nil
+}
+
+func (r *DiskStatReader) allocStats(devNames []string) {
+	stats := make([]lastTwoRawDiskStats, len(devNames))
+	for i := 0; i < len(stats); i++ {
+		stats[i].devName = devNames[i]
+	}
+	r.stats = stats
 }
 
 func (r *DiskStatReader) Read(stats []DiskStat) error {

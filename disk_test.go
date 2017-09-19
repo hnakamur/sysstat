@@ -25,10 +25,13 @@ func TestIOStatReader_parse(t *testing.T) {
  252       2 dm-2 3535546 0 28307568 64269284 7492624 0 59940984 4164029824 0 2293272 4264445128
  252       3 dm-3 3535054 0 28292160 98918464 7492624 0 59940984 1936335464 0 12677308 2083039984
    7       8 loop8 1745 0 3670 36 0 0 0 0 0 4 36`)
+	// Note: To avoid actual disk read, we construct reader manually here
+	reader := new(DiskStatReader)
+	reader.allocStats([]string{"sda", "sdb"})
 	stats := make([]lastTwoRawDiskStats, 2)
 	stats[0].devName = "sda"
 	stats[1].devName = "sdb"
-	err := gIOStatReader.parse(buf, stats)
+	err := reader.parse(buf, stats)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,22 +41,22 @@ func TestIOStatReader_parse(t *testing.T) {
 		ptr      *uint64
 		want     uint64
 	}{
-		{0, "RdIOs", &stats[0].stats[gIOStatReader.curr].RdIOs, 18115828},
-		{0, "RdMerges", &stats[0].stats[gIOStatReader.curr].RdMerges, 30368},
-		{0, "RdSect", &stats[0].stats[gIOStatReader.curr].RdSect, 4557439074},
-		{0, "RdTicks", &stats[0].stats[gIOStatReader.curr].RdTicks, 74915904},
-		{0, "WrIOs", &stats[0].stats[gIOStatReader.curr].WrIOs, 2432358},
-		{0, "WrMerges", &stats[0].stats[gIOStatReader.curr].WrMerges, 2630},
-		{0, "WrSect", &stats[0].stats[gIOStatReader.curr].WrSect, 480699421},
-		{0, "WrTicks", &stats[0].stats[gIOStatReader.curr].WrTicks, 5326092},
-		{1, "RdIOs", &stats[1].stats[gIOStatReader.curr].RdIOs, 5544832},
-		{1, "RdMerges", &stats[1].stats[gIOStatReader.curr].RdMerges, 2815913},
-		{1, "RdSect", &stats[1].stats[gIOStatReader.curr].RdSect, 247978488},
-		{1, "RdTicks", &stats[1].stats[gIOStatReader.curr].RdTicks, 36492504},
-		{1, "WrIOs", &stats[1].stats[gIOStatReader.curr].WrIOs, 58421052},
-		{1, "WrMerges", &stats[1].stats[gIOStatReader.curr].WrMerges, 61635299},
-		{1, "WrSect", &stats[1].stats[gIOStatReader.curr].WrSect, 4134504954},
-		{1, "WrTicks", &stats[1].stats[gIOStatReader.curr].WrTicks, 1305616336},
+		{0, "RdIOs", &stats[0].stats[reader.curr].RdIOs, 18115828},
+		{0, "RdMerges", &stats[0].stats[reader.curr].RdMerges, 30368},
+		{0, "RdSect", &stats[0].stats[reader.curr].RdSect, 4557439074},
+		{0, "RdTicks", &stats[0].stats[reader.curr].RdTicks, 74915904},
+		{0, "WrIOs", &stats[0].stats[reader.curr].WrIOs, 2432358},
+		{0, "WrMerges", &stats[0].stats[reader.curr].WrMerges, 2630},
+		{0, "WrSect", &stats[0].stats[reader.curr].WrSect, 480699421},
+		{0, "WrTicks", &stats[0].stats[reader.curr].WrTicks, 5326092},
+		{1, "RdIOs", &stats[1].stats[reader.curr].RdIOs, 5544832},
+		{1, "RdMerges", &stats[1].stats[reader.curr].RdMerges, 2815913},
+		{1, "RdSect", &stats[1].stats[reader.curr].RdSect, 247978488},
+		{1, "RdTicks", &stats[1].stats[reader.curr].RdTicks, 36492504},
+		{1, "WrIOs", &stats[1].stats[reader.curr].WrIOs, 58421052},
+		{1, "WrMerges", &stats[1].stats[reader.curr].WrMerges, 61635299},
+		{1, "WrSect", &stats[1].stats[reader.curr].WrSect, 4134504954},
+		{1, "WrTicks", &stats[1].stats[reader.curr].WrTicks, 1305616336},
 	}
 	for _, c := range testCases {
 		if *c.ptr != c.want {
@@ -85,11 +88,14 @@ func BenchmarkIOStatReader_parse(b *testing.B) {
  252       2 dm-2 3535546 0 28307568 64269284 7492624 0 59940984 4164029824 0 2293272 4264445128
  252       3 dm-3 3535054 0 28292160 98918464 7492624 0 59940984 1936335464 0 12677308 2083039984
    7       8 loop8 1745 0 3670 36 0 0 0 0 0 4 36`)
+	// Note: To avoid actual disk read, we construct reader manually here
+	reader := new(DiskStatReader)
+	reader.allocStats([]string{"sda", "sdb"})
 	stats := make([]lastTwoRawDiskStats, 2)
 	stats[0].devName = "sda"
 	stats[1].devName = "sdb"
 	for i := 0; i < b.N; i++ {
-		err := gIOStatReader.parse(buf, stats)
+		err := reader.parse(buf, stats)
 		if err != nil {
 			b.Fatal(err)
 		}

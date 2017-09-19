@@ -22,19 +22,18 @@ type MemInfo struct {
 	SwapFree     uint64
 }
 
-type memInfoReader struct {
+// MemInfoReader is used for reading memory information.
+// MemInfoReader is not safe for concurrent accesses from multiple goroutines.
+type MemInfoReader struct {
 	buf [4096]byte
 }
 
-var gMemInfoReader memInfoReader
-
-// ReadMemInfo read the load average values.
-// Note ReadMemInfo is not goroutine safe.
-func ReadMemInfo(m *MemInfo) error {
-	return gMemInfoReader.readMemInfo(m)
+// NewMemInfoReader crates a MemInfoReader.
+func NewMemInfoReader() *MemInfoReader {
+	return new(MemInfoReader)
 }
 
-func (r *memInfoReader) readMemInfo(m *MemInfo) error {
+func (r *MemInfoReader) Read(m *MemInfo) error {
 	fd, err := open([]byte("/proc/meminfo"), os.O_RDONLY, 0)
 	if err != nil {
 		return err
@@ -48,7 +47,7 @@ func (r *memInfoReader) readMemInfo(m *MemInfo) error {
 	return r.parseMemInfo(r.buf[:n], m)
 }
 
-func (r *memInfoReader) parseMemInfo(buf []byte, m *MemInfo) error {
+func (r *MemInfoReader) parseMemInfo(buf []byte, m *MemInfo) error {
 	var err error
 	m.MemTotal, err = r.readValue(&buf, []byte("MemTotal:"))
 	if err != nil {
@@ -85,7 +84,7 @@ func (r *memInfoReader) parseMemInfo(buf []byte, m *MemInfo) error {
 	return nil
 }
 
-func (r *memInfoReader) readValue(buf *[]byte, prefix []byte) (uint64, error) {
+func (r *MemInfoReader) readValue(buf *[]byte, prefix []byte) (uint64, error) {
 	line := r.findLineByPrefix(*buf, prefix)
 	if line == nil {
 		return 0, ErrUnexpectedFormat
@@ -99,7 +98,7 @@ func (r *memInfoReader) readValue(buf *[]byte, prefix []byte) (uint64, error) {
 	return val * 1024, nil
 }
 
-func (r *memInfoReader) findLineByPrefix(buf, prefix []byte) []byte {
+func (r *MemInfoReader) findLineByPrefix(buf, prefix []byte) []byte {
 	for len(buf) > 0 {
 		line := ascii.GetLine(buf)
 		if bytes.HasPrefix(line, prefix) {

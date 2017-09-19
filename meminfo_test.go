@@ -6,8 +6,9 @@ import (
 
 func BenchmarkReadMemInfo(b *testing.B) {
 	var m MemInfo
+	r := NewMemInfoReader()
 	for i := 0; i < b.N; i++ {
-		err := ReadMemInfo(&m)
+		err := r.Read(&m)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -16,7 +17,8 @@ func BenchmarkReadMemInfo(b *testing.B) {
 
 func TestReadMemInfo(t *testing.T) {
 	var m MemInfo
-	err := ReadMemInfo(&m)
+	r := NewMemInfoReader()
+	err := r.Read(&m)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,7 +73,8 @@ DirectMap4k:     1521344 kB
 DirectMap2M:    15083520 kB
 `)
 	var m MemInfo
-	err := gMemInfoReader.parseMemInfo(buf, &m)
+	r := NewMemInfoReader()
+	err := r.parseMemInfo(buf, &m)
 	if err != nil {
 		t.Fatal(err)
 	}

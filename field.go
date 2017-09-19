@@ -24,3 +24,13 @@ func readUint64Field(buf *[]byte) (uint64, error) {
 	*buf = (*buf)[end+1:]
 	return val, nil
 }
+
+func readNthUint64Field(buf *[]byte, n int) (uint64, error) {
+	start, end := ascii.NthField(*buf, n)
+	val, err := bytesconv.ParseUint((*buf)[start:end], 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	*buf = (*buf)[end+1:]
+	return val, nil
+}

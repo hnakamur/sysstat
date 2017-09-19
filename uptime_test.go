@@ -6,8 +6,9 @@ import (
 
 func BenchmarkReadUptime(b *testing.B) {
 	var u Uptime
+	r := NewUptimeReader()
 	for i := 0; i < b.N; i++ {
-		err := ReadUptime(&u)
+		err := r.Read(&u)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -16,7 +17,8 @@ func BenchmarkReadUptime(b *testing.B) {
 
 func TestReadUptime(t *testing.T) {
 	var u Uptime
-	err := ReadUptime(&u)
+	r := NewUptimeReader()
+	err := r.Read(&u)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -25,7 +27,8 @@ func TestReadUptime(t *testing.T) {
 func TestUptimeReader_parse(t *testing.T) {
 	buf := []byte("10654673.98 20455002.81\n")
 	var u Uptime
-	err := gUptimeReader.parse(buf, &u)
+	r := NewUptimeReader()
+	err := r.parse(buf, &u)
 	if err != nil {
 		t.Fatal(err)
 	}

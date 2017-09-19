@@ -10,19 +10,19 @@ type Uptime struct {
 	Uptime float64
 }
 
-type uptimeReader struct {
+// UptimeReader is used for reading uptime.
+// UptimeReader is not safe for concurrent accesses.
+type UptimeReader struct {
 	buf [80]byte
 }
 
-var gUptimeReader uptimeReader
-
-// ReadUptime read the uptime.
-// Note ReadUptime is not goroutine safe.
-func ReadUptime(u *Uptime) error {
-	return gUptimeReader.readUptime(u)
+// NewUptimeReader creates a UptimeReader
+func NewUptimeReader() *UptimeReader {
+	return new(UptimeReader)
 }
 
-func (r *uptimeReader) readUptime(u *Uptime) error {
+// Read reads the uptime
+func (r *UptimeReader) Read(u *Uptime) error {
 	fd, err := open([]byte("/proc/uptime"), os.O_RDONLY, 0)
 	if err != nil {
 		return err
@@ -36,7 +36,7 @@ func (r *uptimeReader) readUptime(u *Uptime) error {
 	return r.parse(r.buf[:n], u)
 }
 
-func (r *uptimeReader) parse(buf []byte, u *Uptime) error {
+func (r *UptimeReader) parse(buf []byte, u *Uptime) error {
 	var err error
 	u.Uptime, err = readFloat64Field(&buf)
 	if err != nil {
