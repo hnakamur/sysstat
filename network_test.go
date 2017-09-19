@@ -1,6 +1,10 @@
 package sysstat
 
-import "testing"
+import (
+	"os"
+	"strings"
+	"testing"
+)
 
 func TestNetworkStatReader_parse(t *testing.T) {
 	buf := []byte(`Inter-|   Receive                                                |  Transmit
@@ -101,14 +105,22 @@ vethJ0LPGB: 451533637 3565555    0    0    0     0          0         0 12339182
 }
 
 func BenchmarkNetworkStatReader_Read(b *testing.B) {
-	reader, err := NewNetworkStatReader([]string{"br0", "enp0s25"})
+	var devNames []string
+	envVal := os.Getenv("SYSSTAT_TEST_NETWORK_DEVNAMES")
+	if envVal != "" {
+		devNames = strings.Split(envVal, ",")
+	} else {
+		devNames = []string{"sda", "sdb"}
+	}
+	reader, err := NewNetworkStatReader(devNames)
 	if err != nil {
 		b.Fatal(err)
 	}
 
 	stats := make([]NetworkStat, 2)
-	stats[0].DevName = "br0"
-	stats[1].DevName = "enp0s25"
+	for i, devName := range devNames {
+		stats[i].DevName = devName
+	}
 	for i := 0; i < b.N; i++ {
 		err := reader.Read(stats)
 		if err != nil {

@@ -1,6 +1,10 @@
 package sysstat
 
-import "testing"
+import (
+	"os"
+	"strings"
+	"testing"
+)
 
 func TestDiskStatReader_parse(t *testing.T) {
 	buf := []byte(`   7       0 loop0 10373 0 25194 476 0 0 0 0 0 124 476
@@ -103,13 +107,21 @@ func BenchmarkDiskStatReader_parse(b *testing.B) {
 }
 
 func BenchmarkDiskStatReader_Read(b *testing.B) {
-	reader, err := NewDiskStatReader([]string{"sda", "sdb"})
+	var devNames []string
+	envVal := os.Getenv("SYSSTAT_TEST_DISK_DEVNAMES")
+	if envVal != "" {
+		devNames = strings.Split(envVal, ",")
+	} else {
+		devNames = []string{"sda", "sdb"}
+	}
+	reader, err := NewDiskStatReader(devNames)
 	if err != nil {
 		b.Fatal(err)
 	}
 	stats := make([]DiskStat, 2)
-	stats[0].DevName = "sda"
-	stats[1].DevName = "sdb"
+	for i, devName := range devNames {
+		stats[i].DevName = devName
+	}
 	for i := 0; i < b.N; i++ {
 		err := reader.Read(stats)
 		if err != nil {
