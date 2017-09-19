@@ -45,10 +45,10 @@ func (r *MemInfoReader) Read(m *MemInfo) error {
 	if err != nil {
 		return err
 	}
-	return r.parseMemInfo(r.buf[:n], m)
+	return r.parse(r.buf[:n], m)
 }
 
-func (r *MemInfoReader) parseMemInfo(buf []byte, m *MemInfo) error {
+func (r *MemInfoReader) parse(buf []byte, m *MemInfo) error {
 	var err error
 	m.MemTotal, err = r.readValue(&buf, []byte("MemTotal:"))
 	if err != nil {

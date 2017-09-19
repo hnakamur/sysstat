@@ -2,7 +2,7 @@ package sysstat
 
 import "testing"
 
-func TestLoadAvgReader_Parse(t *testing.T) {
+func TestLoadAvgReader_parse(t *testing.T) {
 	var a LoadAvg
 	r := NewLoadAvgReader()
 	line := []byte("1.31 1.39 1.43 2/1081 24188\n")
@@ -18,6 +18,18 @@ func TestLoadAvgReader_Parse(t *testing.T) {
 	}
 	if a.Load15 != 1.43 {
 		t.Errorf("Load15 unmatch, got=%g, want=%g", a.Load15, 1.43)
+	}
+}
+
+func BenchmarkLoadAvgReader_parse(b *testing.B) {
+	var a LoadAvg
+	r := NewLoadAvgReader()
+	line := []byte("1.31 1.39 1.43 2/1081 24188\n")
+	for i := 0; i < b.N; i++ {
+		err := r.parse(line, &a)
+		if err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 

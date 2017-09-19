@@ -45,3 +45,17 @@ softirq 4630023313 4 1347808053 2165753 637294967 113231921 0 964818 1200133498 
 		}
 	}
 }
+
+func BenchmarkCPUStatReader_Read(b *testing.B) {
+	var s CPUStat
+	reader, err := NewCPUStatReader()
+	if err != nil {
+		b.Fatal(err)
+	}
+	for i := 0; i < b.N; i++ {
+		err = reader.Read(&s)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}

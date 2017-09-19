@@ -99,3 +99,20 @@ vethJ0LPGB: 451533637 3565555    0    0    0     0          0         0 12339182
 		}
 	}
 }
+
+func BenchmarkNetworkStatReader_Read(b *testing.B) {
+	reader, err := NewNetworkStatReader([]string{"br0", "enp0s25"})
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	stats := make([]NetworkStat, 2)
+	stats[0].DevName = "br0"
+	stats[1].DevName = "enp0s25"
+	for i := 0; i < b.N; i++ {
+		err := reader.Read(stats)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
