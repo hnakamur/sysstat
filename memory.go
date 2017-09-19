@@ -9,9 +9,9 @@ import (
 	"github.com/hnakamur/bytesconv"
 )
 
-// MemInfo represents memory information in bytes.
+// MemoryStat represents memory statistics in bytes.
 // Only interested fields are provided for performance reason.
-type MemInfo struct {
+type MemoryStat struct {
 	MemTotal     uint64
 	MemFree      uint64
 	MemAvailable uint64
@@ -22,19 +22,19 @@ type MemInfo struct {
 	SwapFree     uint64
 }
 
-// MemInfoReader is used for reading memory information.
-// MemInfoReader is not safe for concurrent accesses from multiple goroutines.
-type MemInfoReader struct {
+// MemoryStatReader is used for reading memory statistics.
+// MemoryStatReader is not safe for concurrent accesses from multiple goroutines.
+type MemoryStatReader struct {
 	buf [4096]byte
 }
 
-// NewMemInfoReader crates a MemInfoReader.
-func NewMemInfoReader() *MemInfoReader {
-	return new(MemInfoReader)
+// NewMemoryStatReader crates a MemoryStatReader.
+func NewMemoryStatReader() *MemoryStatReader {
+	return new(MemoryStatReader)
 }
 
 // Read reads a statistics about memory.
-func (r *MemInfoReader) Read(m *MemInfo) error {
+func (r *MemoryStatReader) Read(m *MemoryStat) error {
 	fd, err := open([]byte("/proc/meminfo"), os.O_RDONLY, 0)
 	if err != nil {
 		return err
@@ -48,7 +48,7 @@ func (r *MemInfoReader) Read(m *MemInfo) error {
 	return r.parse(r.buf[:n], m)
 }
 
-func (r *MemInfoReader) parse(buf []byte, m *MemInfo) error {
+func (r *MemoryStatReader) parse(buf []byte, m *MemoryStat) error {
 	var err error
 	m.MemTotal, err = r.readValue(&buf, []byte("MemTotal:"))
 	if err != nil {
@@ -82,7 +82,7 @@ func (r *MemInfoReader) parse(buf []byte, m *MemInfo) error {
 	return err
 }
 
-func (r *MemInfoReader) readValue(buf *[]byte, prefix []byte) (uint64, error) {
+func (r *MemoryStatReader) readValue(buf *[]byte, prefix []byte) (uint64, error) {
 	line := r.findLineByPrefix(*buf, prefix)
 	if line == nil {
 		return 0, ErrUnexpectedFormat
@@ -96,7 +96,7 @@ func (r *MemInfoReader) readValue(buf *[]byte, prefix []byte) (uint64, error) {
 	return val * 1024, nil
 }
 
-func (r *MemInfoReader) findLineByPrefix(buf, prefix []byte) []byte {
+func (r *MemoryStatReader) findLineByPrefix(buf, prefix []byte) []byte {
 	for len(buf) > 0 {
 		line := ascii.GetLine(buf)
 		if bytes.HasPrefix(line, prefix) {

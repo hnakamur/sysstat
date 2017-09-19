@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestMemInfoReader_parse(t *testing.T) {
+func TestMemoryStatReader_parse(t *testing.T) {
 	buf := []byte(`MemTotal:       16260508 kB
 MemFree:          543220 kB
 MemAvailable:    6990124 kB
@@ -51,8 +51,8 @@ Hugepagesize:       2048 kB
 DirectMap4k:     1521344 kB
 DirectMap2M:    15083520 kB
 `)
-	var m MemInfo
-	r := NewMemInfoReader()
+	var m MemoryStat
+	r := NewMemoryStatReader()
 	err := r.parse(buf, &m)
 	if err != nil {
 		t.Fatal(err)
@@ -78,7 +78,7 @@ DirectMap2M:    15083520 kB
 	}
 }
 
-func BenchmarkMemInfoReader_parse(b *testing.B) {
+func BenchmarkMemoryStatReader_parse(b *testing.B) {
 	buf := []byte(`MemTotal:       16260508 kB
 MemFree:          543220 kB
 MemAvailable:    6990124 kB
@@ -125,8 +125,8 @@ Hugepagesize:       2048 kB
 DirectMap4k:     1521344 kB
 DirectMap2M:    15083520 kB
 `)
-	var m MemInfo
-	r := NewMemInfoReader()
+	var m MemoryStat
+	r := NewMemoryStatReader()
 	for i := 0; i < b.N; i++ {
 		err := r.parse(buf, &m)
 		if err != nil {
@@ -135,9 +135,9 @@ DirectMap2M:    15083520 kB
 	}
 }
 
-func BenchmarkMemInfoReader_Read(b *testing.B) {
-	var m MemInfo
-	r := NewMemInfoReader()
+func BenchmarkMemoryStatReader_Read(b *testing.B) {
+	var m MemoryStat
+	r := NewMemoryStatReader()
 	for i := 0; i < b.N; i++ {
 		err := r.Read(&m)
 		if err != nil {
