@@ -11,7 +11,10 @@ least impact on system when we are monitoring.
 * We try to minimize memory allocations during iterations of monitoring in order to
   reduce load from Go runtime GC.
 
-Currently we achieve zero memory allocation during interations of monitoring.
+Currently we achieve zero memory allocation during interations of monitoring
+for CPUStatReader, DiskStatReader, LoadAvgReader, MemoryStatReader, NetworkStatReader,
+and UptimeReader.
+
 Check it out with
 
 ```
