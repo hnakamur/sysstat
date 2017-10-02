@@ -1,7 +1,6 @@
 package sysstat
 
 import (
-	"os"
 	"syscall"
 )
 
@@ -18,26 +17,21 @@ type FileSystemStat struct {
 // FileSystemStatReader is used for reading uptime.
 // FileSystemStatReader is not safe for concurrent accesses.
 type FileSystemStatReader struct {
-	path []byte
+	path string
 }
 
 // NewFileSystemStatReader creates a FileSystemStatReader
 func NewFileSystemStatReader(path string) *FileSystemStatReader {
-	return &FileSystemStatReader{path: []byte(path)}
+	return &FileSystemStatReader{path: path}
 }
 
 // Read reads the uptime
 func (r *FileSystemStatReader) Read(s *FileSystemStat) error {
-	fd, err := open(r.path, os.O_RDONLY, 0)
-	if err != nil {
-		return err
-	}
 	var buf syscall.Statfs_t
-	err = syscall.Fstatfs(fd, &buf)
+	err := syscall.Statfs(r.path, &buf)
 	if err != nil {
 		return err
 	}
-	syscall.Close(fd)
 
 	s.BlockSize = uint64(buf.Bsize)
 	s.TotalBlocks = buf.Blocks
