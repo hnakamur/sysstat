@@ -18,18 +18,33 @@ type FileSystemStat struct {
 // FileSystemStatReader is used for reading uptime.
 // FileSystemStatReader is not safe for concurrent accesses.
 type FileSystemStatReader struct {
-	path []byte
+	paths [][]byte
 }
 
 // NewFileSystemStatReader creates a FileSystemStatReader
-func NewFileSystemStatReader(path string) *FileSystemStatReader {
-	return &FileSystemStatReader{path: []byte(path)}
+func NewFileSystemStatReader(paths []string) *FileSystemStatReader {
+	bPaths := make([][]byte, len(paths))
+	for i, path := range paths {
+		bPaths[i] = []byte(path)
+	}
+	return &FileSystemStatReader{paths: bPaths}
 }
 
 // Read reads the uptime
-func (r *FileSystemStatReader) Read(s *FileSystemStat) error {
+func (r *FileSystemStatReader) Read(stats []FileSystemStat) error {
+	for i, path := range r.paths {
+		err := r.read(path, &stats[i])
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Read reads the uptime
+func (r *FileSystemStatReader) read(path []byte, s *FileSystemStat) error {
 	var buf syscall.Statfs_t
-	err := statfs(r.path, &buf)
+	err := statfs(path, &buf)
 	if err != nil {
 		return err
 	}
